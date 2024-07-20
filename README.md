@@ -13,10 +13,10 @@ Install
 Install the latest version using composer.
 
 ```bash
-$ composer require paquettg/php-html-parser
+$ composer require popov654/php-html-parser
 ```
 
-This package can be found on [packagist](https://packagist.org/packages/paquettg/php-html-parser) and is best loaded using [composer](http://getcomposer.org/). We support php 7.2, 7.3, and 7.4.
+This package can be found on [packagist](https://packagist.org/packages/popov654/php-html-parser) and is best loaded using [composer](http://getcomposer.org/). We support php 7.2, 7.3, and 7.4.
 
 Basic Usage
 -----
@@ -35,13 +35,6 @@ echo $a->text; // "click here"
 ```
 
 The above will output "click here". Simple, no? There are many ways to get the same result from the DOM, such as `$dom->getElementsbyTag('a')[0]` or `$dom->find('a', 0)`, which can all be found in the tests or in the code itself.
-
-Support PHP Html Parser Financially
---------------
-
-Get supported Monolog and help fund the project with the [Tidelift Subscription](https://tidelift.com/subscription/pkg/packagist-paquettg-php-html-parser?utm_source=packagist-paquettg-php-html-parser&utm_medium=referral&utm_campaign=enterprise).
-
-Tidelift delivers commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use.
 
 Loading Files
 ------------------
