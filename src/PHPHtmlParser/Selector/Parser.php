@@ -43,7 +43,7 @@ class Parser implements ParserInterface
             $isNthOfType = false;
 
             // check for elements that alter the behavior of the next element
-            if ($tag == '>') {
+            if ($tag == '>' || $tag == '+' || $tag == '~') {
                 $alterNext = true;
             }
 

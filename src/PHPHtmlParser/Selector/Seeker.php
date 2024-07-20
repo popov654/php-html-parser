@@ -25,6 +25,22 @@ class Seeker implements SeekerInterface
     public function seek(array $nodes, RuleDTO $rule, array $options): array
     {
 
+        if ($rule->getTag() == '+' || $rule->getTag() == '~') {
+            $result = [];
+            foreach ($nodes as $node) {
+                if ($rule->getTag() == '+') {
+                    $result[] = $node->nextSibling();
+                } else {
+                    while ($node->hasNextSibling()) {
+                        $result[] = $node->nextSibling();
+                        $node = $node->nextSibling();
+                    }
+                }
+            }
+
+            return $result;
+        }
+
         $options = $this->flattenOptions($options);
 
         $return = [];

@@ -70,7 +70,11 @@ class Selector implements SelectorInterface
             }
 
             $options = [];
+            $lastRule = null;
             foreach ($selector->getRules() as $rule) {
+                if ($rule->getTag() == '*' && $lastRule && ($lastRule->getTag() == '+' || $lastRule->getTag() == '~')) {
+                    continue;
+                }
                 if ($rule->isAlterNext() && $rule->getTag() == '>') {
                     $options[] = $this->alterNext($rule);
                     continue;
@@ -78,6 +82,7 @@ class Selector implements SelectorInterface
                 $nodes = $this->seeker->seek($nodes, $rule, $options);
                 // clear the options
                 $options = [];
+                $lastRule = $rule;
             }
 
             // this is the final set of nodes
