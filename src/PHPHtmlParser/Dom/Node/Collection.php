@@ -153,4 +153,17 @@ class Collection implements IteratorAggregate, ArrayAccess, Countable
             $callback($value, $key);
         }
     }
+
+    /**
+     * Filters the collection by calling the callback with each
+     * Node in this collection.
+     */
+    public function filter(callable $callback)
+    {
+        foreach ($this->collection as $key => $value) {
+            if (!$callback($value, $key)) {
+                array_splice($this->collection, $key, 1);
+            }
+        }
+    }
 }
