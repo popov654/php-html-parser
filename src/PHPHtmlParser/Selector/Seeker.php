@@ -20,7 +20,7 @@ class Seeker implements SeekerInterface
      *
      * @var InnerNode[]
      *
-     * @throws ChildNotFoundException
+     * @Return AbstractNode[]
      */
     public function seek(array $nodes, RuleDTO $rule, array $options): array
     {
