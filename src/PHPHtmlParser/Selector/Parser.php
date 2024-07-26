@@ -40,6 +40,7 @@ class Parser implements ParserInterface
             $value = null;
             $noKey = false;
             $alterNext = false;
+            $isNthOfType = false;
 
             // check for elements that alter the behavior of the next element
             if ($tag == '>') {
@@ -71,14 +72,21 @@ class Parser implements ParserInterface
                 else if (\trim($value, ', ') == 'last-child') {
                     $value = 'nth-last-child(1)';
                 }
-
-                if (preg_match("/^nth-child\(\d+\)$/", \trim($value, ', '))) {
-                    preg_match_all("/^nth-child\((\d+)\)$/", \trim($value, ', '), $matches, PREG_SET_ORDER);
-                    $key = (int) $matches[0][1];
-                } else if (preg_match("/^nth-last-child\(\d+\)$/", \trim($value, ', '))) {
-                    preg_match_all("/^nth-last-child\((\d+)\)$/", \trim($value, ', '), $matches, PREG_SET_ORDER);
-                    $key = - (int) $matches[0][1];
+                else if (\trim($value, ', ') == 'first-of-type') {
+                    $value = 'nth-of-type(1)';
                 }
+                else if (\trim($value, ', ') == 'last-of-type') {
+                    $value = 'nth-last-of-type(1)';
+                }
+
+                if (preg_match("/^(nth-child|nth-of-type)\(\d+\)$/", \trim($value, ', '))) {
+                    preg_match_all("/^(nth-child|nth-of-type)\((\d+)\)$/", \trim($value, ', '), $matches, PREG_SET_ORDER);
+                    $key = (int) $matches[0][2];
+                } else if (preg_match("/^(nth-last-child|nth-last-of-type)\(\d+\)$/", \trim($value, ', '))) {
+                    preg_match_all("/^(nth-last-child|nth-last-of-type)\((\d+)\)$/", \trim($value, ', '), $matches, PREG_SET_ORDER);
+                    $key = - (int) $matches[0][2];
+                }
+                $isNthOfType = preg_match("/^nth(-last)?-of-type\(\d+\)$/", \trim($value, ', '));
             }
 
             // and final attribute selector
@@ -121,7 +129,8 @@ class Parser implements ParserInterface
                 $key,
                 $value,
                 $noKey,
-                $alterNext
+                $alterNext,
+                $isNthOfType
             );
             if (isset($match[7]) && \is_string($match[7]) && \trim($match[7]) == ',') {
                 $selectors[] = ParsedSelectorDTO::makeFromRules($rules);

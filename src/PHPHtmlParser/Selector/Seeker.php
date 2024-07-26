@@ -53,11 +53,11 @@ class Seeker implements SeekerInterface
                 $pass = true;
 
                 if ($rule->getTag() !== null && \is_numeric($rule->getKey()) && $node instanceof HtmlNode) {
-                    if (strpos($rule->getValue(), 'nth-') === 0) {
-                        $children = $node->childElements();
-                        $n = $rule->getKey() < 0 ? count($children) + $rule->getKey() : $rule->getKey()-1;
-                        $pass = $n >= 0 && $n < count($children) && $child == $children[$n];
-                    }
+                    $children = $rule->isNthOfType() ?
+                        $node->childElementsOfType($child->getTag()->name()) :
+                        $node->childElements();
+                    $n = $rule->getKey() < 0 ? count($children) + $rule->getKey() : $rule->getKey()-1;
+                    $pass = $n >= 0 && $n < count($children) && $child == $children[$n];
                 }
 
                 if ($pass) {
