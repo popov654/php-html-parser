@@ -6,6 +6,7 @@ namespace PHPHtmlParser\Selector;
 
 use PHPHtmlParser\Contracts\Selector\SeekerInterface;
 use PHPHtmlParser\Dom\Node\AbstractNode;
+use PHPHtmlParser\Dom\Node\HtmlNode;
 use PHPHtmlParser\Dom\Node\InnerNode;
 use PHPHtmlParser\Dom\Node\LeafNode;
 use PHPHtmlParser\DTO\Selector\RuleDTO;
@@ -23,24 +24,6 @@ class Seeker implements SeekerInterface
      */
     public function seek(array $nodes, RuleDTO $rule, array $options): array
     {
-        // XPath index
-        if ($rule->getTag() !== null && \is_numeric($rule->getKey())) {
-            $count = 0;
-            foreach ($nodes as $node) {
-                if ($rule->getTag() == '*'
-                    || $rule->getTag() == $node->getTag()
-                        ->name()
-                ) {
-                    ++$count;
-                    if ($count == $rule->getKey()) {
-                        // found the node we wanted
-                        return [$node];
-                    }
-                }
-            }
-
-            return [];
-        }
 
         $options = $this->flattenOptions($options);
 
@@ -62,16 +45,34 @@ class Seeker implements SeekerInterface
                     continue;
                 }
 
-                $pass = $this->checkTag($rule, $child);
-                if ($pass && $rule->getKey() !== null) {
-                    $pass = $this->checkKey($rule, $child);
+                if (!$child instanceof HtmlNode) {
+                    $child = $this->getNextChild($node, $child);
+                    continue;
                 }
-                if ($pass &&
-                    $rule->getKey() !== null &&
-                    $rule->getValue() !== null &&
-                    $rule->getValue() != '*'
-                ) {
-                    $pass = $this->checkComparison($rule, $child);
+
+                $pass = true;
+
+                if ($rule->getTag() !== null && \is_numeric($rule->getKey()) && $node instanceof HtmlNode) {
+                    if (strpos($rule->getValue(), 'nth-') === 0) {
+                        $children = $node->childElements();
+                        $n = $rule->getKey() < 0 ? count($children) + $rule->getKey() : $rule->getKey()-1;
+                        $pass = $n >= 0 && $n < count($children) && $child == $children[$n];
+                    }
+                }
+
+                if ($pass) {
+                    $pass = $this->checkTag($rule, $child);
+                    if ($pass && $rule->getKey() !== null && !\is_numeric($rule->getKey())) {
+                        $pass = $this->checkKey($rule, $child);
+                    }
+                    if ($pass &&
+                        $rule->getKey() !== null &&
+                        $rule->getValue() !== null &&
+                        $rule->getValue() != '*' &&
+                        !\is_numeric($rule->getKey())
+                    ) {
+                        $pass = $this->checkComparison($rule, $child);
+                    }
                 }
 
                 if ($pass) {

@@ -19,7 +19,7 @@ class Parser implements ParserInterface
      *
      * @var string
      */
-    private $pattern = "/([\w\-:\*>]*)(?:\#([\w\-]+)|\.([\w\.\-]+))?(?:\[@?(!?[\w\-:]+)(?:([!*^$]?=)[\"']?(.*?)[\"']?)?\])?([\/, ]+)/is";
+    private $pattern = "/([\w:*>+~-]*(?:\([\w\d]+\))?)(?:#([\w-]+)|\.([\w\.-]+))?(?:\[@?(!?[\w:-]+)(?:([!*^$]?=)[\"']?(.*?)[\"']?)?\])?([\/, ]+)/is";
 
     /**
      * Parses the selector string.
@@ -58,11 +58,34 @@ class Parser implements ParserInterface
                 $value = \explode('.', $match[3]);
             }
 
+            // check for pseudoclass selector
+            if (strpos($match[0], ':') !== false) {
+                $pos = strpos($match[0], ':');
+                $key = 'pseudoclass';
+                $tag = $pos > 0 ? substr($match[0], 0, $pos) : '*';
+                $value = \substr($match[0], $pos+1);
+
+                if (\trim($value, ', ') == 'first-child') {
+                    $value = 'nth-child(1)';
+                }
+                else if (\trim($value, ', ') == 'last-child') {
+                    $value = 'nth-last-child(1)';
+                }
+
+                if (preg_match("/^nth-child\(\d+\)$/", \trim($value, ', '))) {
+                    preg_match_all("/^nth-child\((\d+)\)$/", \trim($value, ', '), $matches, PREG_SET_ORDER);
+                    $key = (int) $matches[0][1];
+                } else if (preg_match("/^nth-last-child\(\d+\)$/", \trim($value, ', '))) {
+                    preg_match_all("/^nth-last-child\((\d+)\)$/", \trim($value, ', '), $matches, PREG_SET_ORDER);
+                    $key = - (int) $matches[0][1];
+                }
+            }
+
             // and final attribute selector
-            if (!empty($match[4])) {
+            else if (!empty($match[4])) {
                 $key = \strtolower($match[4]);
             }
-            if (!empty($match[5])) {
+            else if (!empty($match[5])) {
                 $operator = $match[5];
             }
             if (!empty($match[6])) {

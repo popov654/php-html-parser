@@ -71,7 +71,7 @@ class Selector implements SelectorInterface
 
             $options = [];
             foreach ($selector->getRules() as $rule) {
-                if ($rule->isAlterNext()) {
+                if ($rule->isAlterNext() && $rule->getTag() == '>') {
                     $options[] = $this->alterNext($rule);
                     continue;
                 }
